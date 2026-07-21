@@ -5,6 +5,36 @@
 [node name="LightsOut" type="Node2D"]
 script = ExtResource("1_a68x8")
 
-[node name="GridContainer" type="GridContainer" parent="."]
+[node name="GridBorder" type="PanelContainer" parent="."]
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="GridContainer" type="GridContainer" parent="GridBorder"]
+layout_mode = 2
+
+[node name="Controls" type="HBoxContainer" parent="."]
+offset_left = 64.0
+offset_top = 16.0
+offset_right = 186.0
+offset_bottom = 56.0
+theme_override_constants/separation = 8
+
+[node name="SolveButton" type="Button" parent="Controls"]
+layout_mode = 2
+text = "Solve"
+
+[node name="RestartButton" type="Button" parent="Controls"]
+layout_mode = 2
+text = "Restart"
+
+[node name="WinLabel" type="Label" parent="."]
+offset_left = 200.0
+offset_top = 15.0
+offset_right = 342.0
+offset_bottom = 60.0
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "You won!"
+
+[connection signal="pressed" from="Controls/SolveButton" to="." method="_on_solve_button_pressed"]
+[connection signal="pressed" from="Controls/RestartButton" to="." method="_on_restart_button_pressed"]

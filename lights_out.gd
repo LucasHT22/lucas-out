@@ -6,8 +6,19 @@ const TILE_SIZE = 64
 var tiles: Array = []
 
 func _ready() -> void:
-	var grid = $GridContainer
+	var border_style = StyleBoxFlat.new()
+	border_style.content_margin_left = 64
+	border_style.content_margin_right = 64
+	border_style.content_margin_top = 64
+	border_style.content_margin_bottom = 64
+	border_style.border_color = Color(0, 0, 0, 0)
+	border_style.bg_color = Color(0, 0, 0, 0)
+	$GridBorder.add_theme_stylebox_override("panel", border_style)
+	
+	var grid = $GridBorder/GridContainer
 	grid.columns = GRID_SIZE
+	
+	$WinLabel.visible = false
 	
 	for row in range(GRID_SIZE):
 		var tile_row = []
@@ -22,13 +33,16 @@ func _ready() -> void:
 		tiles.append(tile_row)
 	
 	_generate_puzzle(15)
-	var moves = solve()
-	print(moves)
-	for move in moves:
-		_on_tile_pressed(move.x, move.y)
 
 func _generate_puzzle(num_shuffles: int):
+	$WinLabel.visible = false
 	randomize()
+	
+	for row in range(GRID_SIZE):
+		for col in range(GRID_SIZE):
+			tiles[row][col].set_meta("on", false)
+			_set_tile_color(tiles[row][col], false)
+	
 	for i in range(num_shuffles):
 		var row = randi() % GRID_SIZE
 		var col = randi() % GRID_SIZE
@@ -70,7 +84,7 @@ func check_win():
 	on_win()
 
 func on_win():
-	print("You won!")
+	$WinLabel.visible = true
 
 func solve() -> Array:
 	var n = GRID_SIZE * GRID_SIZE
@@ -130,3 +144,13 @@ func solve() -> Array:
 			if x[i] == 1:
 				moves.append(Vector2i(row, col))
 	return moves
+
+
+func _on_solve_button_pressed() -> void:
+	var moves = solve()
+	for move in moves:
+		_on_tile_pressed(move.x, move.y)
+
+
+func _on_restart_button_pressed() -> void:
+	_generate_puzzle(15)
