@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://s425cvxhjrj3"]
+
+[ext_resource type="Script" uid="uid://bn87gmp1cbd5l" path="res://lights_out.gd" id="1_a68x8"]
+
+[node name="LightsOut" type="Node2D"]
+script = ExtResource("1_a68x8")
+
+[node name="GridContainer" type="GridContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
