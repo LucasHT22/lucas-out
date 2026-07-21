@@ -20,6 +20,23 @@ func _ready() -> void:
 			grid.add_child(button)
 			tile_row.append(button)
 		tiles.append(tile_row)
+	
+	_generate_puzzle(15)
+	var moves = solve()
+	print(moves)
+	for move in moves:
+		_on_tile_pressed(move.x, move.y)
+
+func _generate_puzzle(num_shuffles: int):
+	randomize()
+	for i in range(num_shuffles):
+		var row = randi() % GRID_SIZE
+		var col = randi() % GRID_SIZE
+		_toggle_tile(row, col)
+		_toggle_tile(row - 1, col)
+		_toggle_tile(row + 1, col)
+		_toggle_tile(row, col - 1)
+		_toggle_tile(row, col + 1)
 
 func _on_tile_pressed(row: int, col: int):
 	_toggle_tile(row, col)
@@ -54,3 +71,62 @@ func check_win():
 
 func on_win():
 	print("You won!")
+
+func solve() -> Array:
+	var n = GRID_SIZE * GRID_SIZE
+	var A = []
+	var b = []
+	
+	for row in range(GRID_SIZE):
+		for col in range(GRID_SIZE):
+			var i = row * GRID_SIZE + col
+			var coeffs = []
+			coeffs.resize(n)
+			coeffs.fill(0)
+			coeffs[i] = 1
+			if row > 0: coeffs[i - GRID_SIZE] = 1
+			if row < GRID_SIZE - 1: coeffs[i + GRID_SIZE] = 1
+			if col > 0: coeffs[i - 1] = 1
+			if col < GRID_SIZE - 1: coeffs[i + 1] = 1
+			A.append(coeffs)
+			b.append(1 if tiles[row][col].get_meta("on", false) else 0)
+	
+	var rank = 0
+	for c in range(n):
+		var pivot = -1
+		for r in range(rank, n):
+			if A[r][c] == 1:
+				pivot = r
+				break
+		if pivot == -1:
+			continue
+		var tmp = A[rank]
+		A[rank] = A[pivot]
+		A[pivot] = tmp
+		var tmp_b = b[rank]
+		b[rank] = b[pivot]
+		b[pivot] = tmp_b
+		
+		for r in range(n):
+			if r != rank and A[r][c] == 1:
+				for cc in range(n):
+					A[r][cc] = A[r][cc] ^ A[rank][cc]
+				b[r] = b[r] ^ b[rank]
+		rank += 1
+	
+	var x = []
+	x.resize(n)
+	x.fill(0)
+	for r in range(n):
+		for c in range(n):
+			if A[r][c] == 1:
+				x[c] = b[r]
+				break
+	
+	var moves = []
+	for row in range(GRID_SIZE):
+		for col in range(GRID_SIZE):
+			var i = row * GRID_SIZE + col
+			if x[i] == 1:
+				moves.append(Vector2i(row, col))
+	return moves
