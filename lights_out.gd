@@ -22,11 +22,12 @@ func _ready() -> void:
 		tiles.append(tile_row)
 
 func _on_tile_pressed(row: int, col: int):
-	var button = tiles[row][col]
-	var is_on = button.get_meta("on", false)
-	is_on = !is_on
-	button.set_meta("on", is_on)
-	_set_tile_color(button, is_on)
+	_toggle_tile(row, col)
+	_toggle_tile(row - 1, col)
+	_toggle_tile(row + 1, col)
+	_toggle_tile(row, col - 1)
+	_toggle_tile(row, col + 1)
+	check_win()
 
 func _set_tile_color(button: Button, on: bool):
 	var style = StyleBoxFlat.new()
@@ -34,3 +35,22 @@ func _set_tile_color(button: Button, on: bool):
 	button.add_theme_stylebox_override("normal", style)
 	button.add_theme_stylebox_override("hover", style)
 	button.add_theme_stylebox_override("pressed", style)
+
+func _toggle_tile(row: int, col: int):
+	if row < 0 or row >= GRID_SIZE or col < 0 or col >= GRID_SIZE:
+		return
+	var button = tiles[row][col]
+	var is_on = button.get_meta("on", false)
+	is_on = !is_on
+	button.set_meta("on", is_on)
+	_set_tile_color(button, is_on)
+
+func check_win():
+	for row in range(GRID_SIZE):
+		for col in range(GRID_SIZE):
+			if tiles[row][col].get_meta("on", false):
+				return
+	on_win()
+
+func on_win():
+	print("You won!")
