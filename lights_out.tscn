@@ -13,9 +13,9 @@ offset_bottom = 40.0
 layout_mode = 2
 
 [node name="Controls" type="HBoxContainer" parent="."]
-offset_left = 64.0
+offset_left = 48.0
 offset_top = 16.0
-offset_right = 186.0
+offset_right = 414.0
 offset_bottom = 56.0
 theme_override_constants/separation = 8
 
@@ -27,14 +27,67 @@ text = "Solve"
 layout_mode = 2
 text = "Restart"
 
+[node name="UndoButton" type="Button" parent="Controls"]
+layout_mode = 2
+text = "Undo"
+
+[node name="EasyButton" type="Button" parent="Controls"]
+layout_mode = 2
+text = "Easy"
+
+[node name="MediumButton" type="Button" parent="Controls"]
+layout_mode = 2
+text = "Medium"
+
+[node name="HardButton" type="Button" parent="Controls"]
+layout_mode = 2
+text = "Hard"
+
 [node name="WinLabel" type="Label" parent="."]
-offset_left = 200.0
-offset_top = 15.0
-offset_right = 342.0
-offset_bottom = 60.0
+offset_left = 252.0
+offset_top = 431.0
+offset_right = 394.0
+offset_bottom = 476.0
 theme_override_colors/font_color = Color(0, 1, 0, 1)
 theme_override_font_sizes/font_size = 32
 text = "You won!"
 
+[node name="ClickCountLabel" type="Label" parent="."]
+offset_left = 64.0
+offset_top = 445.0
+offset_right = 104.0
+offset_bottom = 468.0
+text = "Click"
+
+[node name="SizeControls" type="HBoxContainer" parent="."]
+anchors_preset = -1
+offset_left = 122.0
+offset_top = 506.0
+offset_right = 342.0
+offset_bottom = 546.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Size3Button" type="Button" parent="SizeControls"]
+layout_mode = 2
+text = "Size 3"
+
+[node name="Size4Button" type="Button" parent="SizeControls"]
+layout_mode = 2
+text = "Size 4
+"
+
+[node name="Size5Button" type="Button" parent="SizeControls"]
+layout_mode = 2
+text = "Size 5"
+
+[node name="Size7Button" type="Button" parent="SizeControls"]
+layout_mode = 2
+text = "Size 7"
+
 [connection signal="pressed" from="Controls/SolveButton" to="." method="_on_solve_button_pressed"]
 [connection signal="pressed" from="Controls/RestartButton" to="." method="_on_restart_button_pressed"]
+[connection signal="pressed" from="Controls/UndoButton" to="." method="_on_undo_button_pressed"]
+[connection signal="pressed" from="Controls/EasyButton" to="." method="_on_easy_button_pressed"]
+[connection signal="pressed" from="Controls/MediumButton" to="." method="_on_medium_button_pressed"]
+[connection signal="pressed" from="Controls/HardButton" to="." method="_on_hard_button_pressed"]

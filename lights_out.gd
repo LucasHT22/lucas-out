@@ -1,11 +1,20 @@
 extends Node2D
 
-const GRID_SIZE = 5
-const TILE_SIZE = 64
+var GRID_SIZE: int = 5
+var TILE_SIZE: int = 64
+
+const TOTAL_GRID_PIXELS = 320
 
 var tiles: Array = []
+var click_count: int = 0
+var move_history: Array = []
+var current_difficulty: int = 15
 
 func _ready() -> void:
+	$SizeControls/Size3Button.pressed.connect(_on_size_pressed.bind(3))
+	$SizeControls/Size4Button.pressed.connect(_on_size_pressed.bind(4))
+	$SizeControls/Size5Button.pressed.connect(_on_size_pressed.bind(5))
+	$SizeControls/Size7Button.pressed.connect(_on_size_pressed.bind(7))
 	var border_style = StyleBoxFlat.new()
 	border_style.content_margin_left = 64
 	border_style.content_margin_right = 64
@@ -15,10 +24,27 @@ func _ready() -> void:
 	border_style.bg_color = Color(0, 0, 0, 0)
 	$GridBorder.add_theme_stylebox_override("panel", border_style)
 	
-	var grid = $GridBorder/GridContainer
-	grid.columns = GRID_SIZE
-	
 	$WinLabel.visible = false
+	$ClickCountLabel.text = "Clicks: 0"
+	
+	build_grid()
+	_generate_puzzle(current_difficulty)
+
+func _on_size_pressed(new_size: int):
+	GRID_SIZE = new_size
+	build_grid()
+	_generate_puzzle(current_difficulty)
+
+func build_grid():
+	TILE_SIZE = int(TOTAL_GRID_PIXELS / float(GRID_SIZE))
+	var grid = $GridBorder/GridContainer
+	
+	for child in grid.get_children():
+		grid.remove_child(child)
+		child.free()
+	tiles.clear()
+	
+	grid.columns = GRID_SIZE
 	
 	for row in range(GRID_SIZE):
 		var tile_row = []
@@ -31,11 +57,12 @@ func _ready() -> void:
 			grid.add_child(button)
 			tile_row.append(button)
 		tiles.append(tile_row)
-	
-	_generate_puzzle(15)
 
 func _generate_puzzle(num_shuffles: int):
 	$WinLabel.visible = false
+	click_count = 0
+	move_history.clear()
+	$ClickCountLabel.text = "Clicks: 0"
 	randomize()
 	
 	for row in range(GRID_SIZE):
@@ -58,6 +85,9 @@ func _on_tile_pressed(row: int, col: int):
 	_toggle_tile(row + 1, col)
 	_toggle_tile(row, col - 1)
 	_toggle_tile(row, col + 1)
+	move_history.append(Vector2i(row, col))
+	click_count += 1
+	$ClickCountLabel.text = "Clicks: " + str(click_count)
 	check_win()
 
 func _set_tile_color(button: Button, on: bool):
@@ -153,4 +183,33 @@ func _on_solve_button_pressed() -> void:
 
 
 func _on_restart_button_pressed() -> void:
-	_generate_puzzle(15)
+	_generate_puzzle(current_difficulty)
+
+
+func _on_undo_button_pressed() -> void:
+	if move_history.is_empty():
+		return
+	var last_move = move_history.pop_back()
+	_toggle_tile(last_move.x, last_move.y)
+	_toggle_tile(last_move.x - 1, last_move.y)
+	_toggle_tile(last_move.x + 1, last_move.y)
+	_toggle_tile(last_move.x, last_move.y - 1)
+	_toggle_tile(last_move.x, last_move.y + 1)
+	click_count -= 1
+	$ClickCountLabel.text = "Clicks: " + str(click_count)
+	$WinLabel.visible = false
+
+
+func _on_easy_button_pressed() -> void:
+	current_difficulty = 5
+	_generate_puzzle(current_difficulty)
+
+
+func _on_medium_button_pressed() -> void:
+	current_difficulty = 15
+	_generate_puzzle(current_difficulty)
+
+
+func _on_hard_button_pressed() -> void:
+	current_difficulty = 30
+	_generate_puzzle(current_difficulty)
