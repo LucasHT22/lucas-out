@@ -10,6 +10,7 @@ var click_count: int = 0
 var move_history: Array = []
 var current_difficulty: int = 15
 var hinted_cells: Array = []
+var optimal_clicks: int = 0
 
 func _ready() -> void:
 	$SizeControls/Size3Button.pressed.connect(_on_size_pressed.bind(3))
@@ -65,6 +66,7 @@ func _generate_puzzle(num_shuffles: int):
 	move_history.clear()
 	clear_hints()
 	$ClickCountLabel.text = "Clicks: 0"
+	$ClickCountLabel.visible = true
 	randomize()
 	
 	for row in range(GRID_SIZE):
@@ -80,6 +82,8 @@ func _generate_puzzle(num_shuffles: int):
 		_toggle_tile(row + 1, col)
 		_toggle_tile(row, col - 1)
 		_toggle_tile(row, col + 1)
+	
+	optimal_clicks = solve().size()
 
 func _on_tile_pressed(row: int, col: int):
 	clear_hints()
@@ -123,7 +127,35 @@ func check_win():
 	on_win()
 
 func on_win():
+	$ClickCountLabel.visible = false
 	$WinLabel.visible = true
+	$WinLabel.text = "You won! \n(%d clicks - optimal: %d)" % [click_count, optimal_clicks]
+	animate_win()
+
+func animate_win():
+	$WinLabel.scale = Vector2(0.5, 0.5)
+	$WinLabel.pivot_offset = $WinLabel.size / 2
+	var label_tween = create_tween()
+	label_tween.tween_property($WinLabel, "scale", Vector2(1.2, 1.2), 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	label_tween.tween_property($WinLabel, "scale", Vector2(1.0, 1.0), 0.1)
+	
+	for row in range(GRID_SIZE):
+		for col in range(GRID_SIZE):
+			var button = tiles[row][col]
+			var delay = (row + col) * 0.03
+			var flash_tween = create_tween()
+			flash_tween.tween_interval(delay)
+			flash_tween.tween_callback(func():
+				var style = StyleBoxFlat.new()
+				style.bg_color = Color.WHITE
+				button.add_theme_stylebox_override("normal", style)
+			)
+			flash_tween.tween_interval(0.08)
+			flash_tween.tween_callback(func():
+				var style = StyleBoxFlat.new()
+				style.bg_color = Color.DARK_GRAY
+				button.add_theme_stylebox_override("normal", style)
+			)
 
 func solve() -> Array:
 	var n = GRID_SIZE * GRID_SIZE

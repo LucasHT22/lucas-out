@@ -48,13 +48,15 @@ layout_mode = 2
 text = "Hard"
 
 [node name="WinLabel" type="Label" parent="."]
-offset_left = 252.0
-offset_top = 431.0
-offset_right = 394.0
-offset_bottom = 476.0
+offset_left = -31.0
+offset_top = 406.0
+offset_right = 490.0
+offset_bottom = 499.0
 theme_override_colors/font_color = Color(0, 1, 0, 1)
 theme_override_font_sizes/font_size = 32
-text = "You won!"
+text = "You won! 
+(%d clicks - optimal: %d)"
+horizontal_alignment = 1
 
 [node name="ClickCountLabel" type="Label" parent="."]
 offset_left = 64.0
