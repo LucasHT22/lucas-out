@@ -9,6 +9,7 @@ var tiles: Array = []
 var click_count: int = 0
 var move_history: Array = []
 var current_difficulty: int = 15
+var hinted_cells: Array = []
 
 func _ready() -> void:
 	$SizeControls/Size3Button.pressed.connect(_on_size_pressed.bind(3))
@@ -62,6 +63,7 @@ func _generate_puzzle(num_shuffles: int):
 	$WinLabel.visible = false
 	click_count = 0
 	move_history.clear()
+	clear_hints()
 	$ClickCountLabel.text = "Clicks: 0"
 	randomize()
 	
@@ -80,6 +82,7 @@ func _generate_puzzle(num_shuffles: int):
 		_toggle_tile(row, col + 1)
 
 func _on_tile_pressed(row: int, col: int):
+	clear_hints()
 	_toggle_tile(row, col)
 	_toggle_tile(row - 1, col)
 	_toggle_tile(row + 1, col)
@@ -90,12 +93,18 @@ func _on_tile_pressed(row: int, col: int):
 	$ClickCountLabel.text = "Clicks: " + str(click_count)
 	check_win()
 
-func _set_tile_color(button: Button, on: bool):
+func _set_tile_color(button: Button, on: bool, animate: bool = true):
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color.YELLOW if on else Color.DARK_GRAY
 	button.add_theme_stylebox_override("normal", style)
 	button.add_theme_stylebox_override("hover", style)
 	button.add_theme_stylebox_override("pressed", style)
+	
+	if animate:
+		button.pivot_offset = button.size / 2
+		var tween = create_tween()
+		tween.tween_property(button, "scale", Vector2(1.15, 1.15), 0.08)
+		tween.tween_property(button, "scale", Vector2(1.0, 1.0), 0.08)
 
 func _toggle_tile(row: int, col: int):
 	if row < 0 or row >= GRID_SIZE or col < 0 or col >= GRID_SIZE:
@@ -177,6 +186,7 @@ func solve() -> Array:
 
 
 func _on_solve_button_pressed() -> void:
+	clear_hints()
 	var moves = solve()
 	for move in moves:
 		_on_tile_pressed(move.x, move.y)
@@ -213,3 +223,19 @@ func _on_medium_button_pressed() -> void:
 func _on_hard_button_pressed() -> void:
 	current_difficulty = 30
 	_generate_puzzle(current_difficulty)
+
+
+func _on_hint_button_pressed() -> void:
+	clear_hints()
+	var moves = solve()
+	hinted_cells = moves
+	for move in moves:
+		var button = tiles[move.x][move.y]
+		button.add_theme_color_override("font_color", Color.RED)
+		button.text = "•"
+
+func clear_hints():
+	for cell in hinted_cells:
+		var button = tiles[cell.x][cell.y]
+		button.text = ""
+	hinted_cells.clear()

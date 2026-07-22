@@ -13,15 +13,19 @@ offset_bottom = 40.0
 layout_mode = 2
 
 [node name="Controls" type="HBoxContainer" parent="."]
-offset_left = 48.0
+offset_left = 24.0
 offset_top = 16.0
-offset_right = 414.0
+offset_right = 439.0
 offset_bottom = 56.0
 theme_override_constants/separation = 8
 
 [node name="SolveButton" type="Button" parent="Controls"]
 layout_mode = 2
 text = "Solve"
+
+[node name="HintButton" type="Button" parent="Controls"]
+layout_mode = 2
+text = "Hint"
 
 [node name="RestartButton" type="Button" parent="Controls"]
 layout_mode = 2
@@ -86,6 +90,7 @@ layout_mode = 2
 text = "Size 7"
 
 [connection signal="pressed" from="Controls/SolveButton" to="." method="_on_solve_button_pressed"]
+[connection signal="pressed" from="Controls/HintButton" to="." method="_on_hint_button_pressed"]
 [connection signal="pressed" from="Controls/RestartButton" to="." method="_on_restart_button_pressed"]
 [connection signal="pressed" from="Controls/UndoButton" to="." method="_on_undo_button_pressed"]
 [connection signal="pressed" from="Controls/EasyButton" to="." method="_on_easy_button_pressed"]
